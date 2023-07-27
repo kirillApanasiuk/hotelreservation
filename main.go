@@ -7,6 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"hotelreservation/api"
+	"hotelreservation/api/middleware"
 	"hotelreservation/db"
 	"log"
 )
@@ -23,6 +24,7 @@ func main() {
 	hotelStore := db.NewMongoHotelStore(client)
 	userStore := db.NewMongoUserStore(client)
 	userHandler := api.NewUserHandler(userStore)
+	authHandler := api.NewAuthHandler(userStore)
 	roomStore := db.NewMongoRoomStore(client, hotelStore)
 	store := &db.Store{
 		User:  userStore,
@@ -38,8 +40,12 @@ func main() {
 	}
 	app := fiber.New(config)
 
-	apiv1 := app.Group("/api/v1")
+	apiv1 := app.Group("/api/v1", middleware.JWTAuthentication)
+	auth := app.Group("/api")
 
+	/// auth
+	auth.Post("/auth", authHandler.HandleAuthenticate)
+	/// user handlers
 	apiv1.Get("/user", userHandler.HandleGetUsers)
 	apiv1.Put("/user/:id", userHandler.HandlePutUser)
 	apiv1.Post("/user", userHandler.HandlePostUser)
