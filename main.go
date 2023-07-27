@@ -11,18 +11,25 @@ import (
 	"log"
 )
 
-const mongodburi = "mongodb://localhost:27017"
-
 func main() {
-	listenAddr := flag.String("listenAddr", ":5000", "The listen address of the API server")
+	listenAddr := flag.String("listenAddr", ":5001", "The listen address of the API server")
 	flag.Parse()
 
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(mongodburi))
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(db.MongoDBuri))
 	if err != nil {
 		log.Fatal(err)
 	}
 	///handlers initialization
-	userHandler := api.NewUserHandler(db.NewMongoUserStore(client))
+	hotelStore := db.NewMongoHotelStore(client)
+	userStore := db.NewMongoUserStore(client)
+	userHandler := api.NewUserHandler(userStore)
+	roomStore := db.NewMongoRoomStore(client, hotelStore)
+	store := &db.Store{
+		User:  userStore,
+		Hotel: hotelStore,
+		Room:  roomStore,
+	}
+	hotelHandler := api.NewHotelHandler(store)
 
 	config := fiber.Config{
 		ErrorHandler: func(ctx *fiber.Ctx, err error) error {
@@ -38,5 +45,9 @@ func main() {
 	apiv1.Post("/user", userHandler.HandlePostUser)
 	apiv1.Delete("/user/:id", userHandler.HandleDeleteUser)
 	apiv1.Get("/user/:id", userHandler.HandleGetUser)
+
+	apiv1.Get("/hotel", hotelHandler.HandleGetHotels)
+	apiv1.Get("/hotel/:id", hotelHandler.HandleGetHotel)
+	apiv1.Get("/hotel/:id/rooms", hotelHandler.HandleGetRooms)
 	_ = app.Listen(*listenAddr)
 }

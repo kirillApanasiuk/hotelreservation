@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -10,7 +11,12 @@ import (
 
 const userColl = "users"
 
+type Dropper interface {
+	Drop(ctx context.Context) error
+}
+
 type UserStore interface {
+	Dropper
 	GetUserById(context.Context, string) (*types.User, error)
 	GetUsers(context.Context) ([]*types.User, error)
 	CreateUser(ctx context.Context, user *types.User) (*types.User, error)
@@ -63,6 +69,10 @@ func (s *MongoUserStore) GetUsers(ctx context.Context) ([]*types.User, error) {
 	}
 
 	return users, nil
+}
+func (s *MongoUserStore) Drop(ctx context.Context) error {
+	fmt.Println("---dropping user collection")
+	return s.coll.Drop(ctx)
 }
 
 func (s *MongoUserStore) DeleteUser(ctx context.Context, ID string) error {
