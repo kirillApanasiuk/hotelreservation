@@ -42,16 +42,22 @@ func (p UpdateUserParams) ToBSON() bson.M {
 func (params CreateUserParams) Validate() map[string]string {
 	errors := map[string]string{}
 	if len(params.FirstName) <= minFirstNameLen {
-		AddErrorToCollection(errors, fmt.Sprintf("firstName length should be at least %d characters", minFirstNameLen), "firstName")
+		AddErrorToCollection(
+			errors, fmt.Sprintf("firstName length should be at least %d characters", minFirstNameLen), "firstName",
+		)
 	}
 	if len(params.FirstName) <= minLastNameLen {
-		AddErrorToCollection(errors, fmt.Sprintf("lastName length should be at least %d characters", minFirstNameLen), "lastName")
+		AddErrorToCollection(
+			errors, fmt.Sprintf("lastName length should be at least %d characters", minFirstNameLen), "lastName",
+		)
 	}
 	if len(params.Password) <= minPasswordLen {
-		AddErrorToCollection(errors, fmt.Sprintf("Password length should be at least %d characters", minFirstNameLen), "password")
+		AddErrorToCollection(
+			errors, fmt.Sprintf("Password length should be at least %d characters", minFirstNameLen), "password",
+		)
 	}
 	if !isEmailValid(params.Email) {
-		AddErrorToCollection(errors, fmt.Sprintf("email is invalid"), "email")
+		AddErrorToCollection(errors, fmt.Sprintf("email is invalid %s", params.Email), "email")
 	}
 	return errors
 }
@@ -89,4 +95,5 @@ type User struct {
 	LastName          string             `bson:"lastName" json:"lastName"`
 	Email             string             `bson:"email" json:"email"`
 	EncryptedPassword string             `bson:"EncryptedPassword" json:"-"`
+	IsAdmin           bool               `bson:"isAdmin" json:"isAdmin"`
 }

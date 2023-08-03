@@ -33,10 +33,12 @@ type genericResponse struct {
 }
 
 func invalidCredentials(c *fiber.Ctx) error {
-	return c.Status(http.StatusBadRequest).JSON(genericResponse{
-		Type: "error",
-		Msg:  "invalid credentials",
-	})
+	return c.Status(http.StatusBadRequest).JSON(
+		genericResponse{
+			Type: "error",
+			Msg:  "invalid credentials",
+		},
+	)
 }
 
 func (h *AuthHandler) HandleAuthenticate(c *fiber.Ctx) error {
@@ -59,7 +61,7 @@ func (h *AuthHandler) HandleAuthenticate(c *fiber.Ctx) error {
 	}
 	authResponse := &AuthResponse{
 		User:  user,
-		Token: createTokenFromUser(user),
+		Token: CreateTokenFromUser(user),
 	}
 	return c.JSON(authResponse)
 }
@@ -70,9 +72,9 @@ func NewAuthHandler(userStore db.UserStore) *AuthHandler {
 	}
 }
 
-func createTokenFromUser(user *types.User) string {
+func CreateTokenFromUser(user *types.User) string {
 	now := time.Now()
-	validTill := now.Add(time.Hour * 4).Unix()
+	validTill := now.Add(time.Hour * 100).Unix()
 	claims := jwt.MapClaims{
 		"id":      user.ID,
 		"email":   user.Email,

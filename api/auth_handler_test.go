@@ -13,12 +13,14 @@ import (
 )
 
 func insertTestUser(t *testing.T, userStore db.UserStore) *types.User {
-	user, err := types.NewUserFromParams(types.CreateUserParams{
-		FirstName: "Kirill",
-		LastName:  "Apanasiuk",
-		Email:     "milidanex@gmail.com",
-		Password:  "admin",
-	})
+	user, err := types.NewUserFromParams(
+		types.CreateUserParams{
+			FirstName: "Kirill",
+			LastName:  "Apanasiuk",
+			Email:     "milidanex@gmail.com",
+			Password:  "admin",
+		},
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -30,18 +32,18 @@ func insertTestUser(t *testing.T, userStore db.UserStore) *types.User {
 	return user
 }
 
-func TestAuthenticateSuccess(t *testing.T) {
+func TestAuthenticateFailure(t *testing.T) {
 	testDb := setup(t)
 
 	defer testDb.teardown(t)
-	insertTestUser(t, testDb.UserStore)
+	insertTestUser(t, testDb.Store.User)
 	app := fiber.New()
-	authhandler := NewAuthHandler(testDb.UserStore)
+	authhandler := NewAuthHandler(testDb.Store.User)
 	app.Post("/auth", authhandler.HandleAuthenticate)
 
 	params := AuthParams{
 		Email:    "milidanex@gmail.com",
-		Password: "admin",
+		Password: "admin!",
 	}
 
 	b, _ := json.Marshal(params)
