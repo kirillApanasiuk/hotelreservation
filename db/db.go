@@ -1,12 +1,20 @@
 package db
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
-
-const (
-	DBNAME     = "hotel-reservation"
-	TestDBNAME = "hotel-reservation-test"
-	MongoDBuri = "mongodb://localhost:27017"
+import (
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
+
+const MongoDBNameEnvName = "MONGO_DB_NAME"
+
+type PaginationFilter struct {
+	Limit int64
+	Page  int64
+}
+
+type HotelFilter struct {
+	PaginationFilter
+	Rating int64
+}
 
 type Store struct {
 	User    UserStore

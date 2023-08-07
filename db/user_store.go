@@ -7,6 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"hotelreservation/types"
+	"os"
 )
 
 const userColl = "users"
@@ -42,9 +43,10 @@ type MongoUserStore struct {
 }
 
 func NewMongoUserStore(client *mongo.Client) *MongoUserStore {
+	dbname := os.Getenv(MongoDBNameEnvName)
 	return &MongoUserStore{
 		client: client,
-		coll:   client.Database(DBNAME).Collection(userColl),
+		coll:   client.Database(dbname).Collection(userColl),
 	}
 }
 
@@ -92,7 +94,7 @@ func (s *MongoUserStore) DeleteUser(ctx context.Context, ID string) error {
 		return err
 	}
 
-	//	TODO: maybe its a good idea to handle if we did not delete any user. Maybe log it or something
+	//	TODO: maybe it's a good idea to handle if we did not delete any user. Maybe log it or something
 	_, err = s.coll.DeleteOne(ctx, bson.M{"_id": oid})
 	if err != nil {
 		return err

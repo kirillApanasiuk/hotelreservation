@@ -5,18 +5,31 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"hotelreservation/types"
+	"os"
 )
 
 type HotelStore interface {
 	Insert(ctx context.Context, hotel *types.Hotel) (*types.Hotel, error)
 	Update(ctx context.Context, m bson.M, update bson.M) error
-	GetHotels(ctx context.Context, filter bson.M) ([]*types.Hotel, error)
+	GetHotels(ctx context.Context, filter bson.M, hotelFilter HotelFilter) ([]*types.Hotel, error)
 	GetHotel(ctx context.Context, filter bson.M) (*types.Hotel, error)
 }
 
-func (s *MongoHotelStore) GetHotels(ctx context.Context, filter bson.M) ([]*types.Hotel, error) {
-	resp, err := s.coll.Find(ctx, filter)
+func (s *MongoHotelStore) GetHotels(ctx context.Context, filter bson.M, hotelFilter HotelFilter) (
+	[]*types.Hotel, error,
+) {
+
+	opts := options.FindOptions{}
+	opts.SetSkip((hotelFilter.Page - 1) * hotelFilter.Limit)
+	opts.SetLimit(hotelFilter.Limit)
+
+	resp, err := s.coll.Find(
+		ctx, &bson.M{
+			"rating": hotelFilter.Rating,
+		}, &opts,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -42,9 +55,10 @@ type MongoHotelStore struct {
 }
 
 func NewMongoHotelStore(client *mongo.Client) *MongoHotelStore {
+	dbname := os.Getenv(MongoDBNameEnvName)
 	return &MongoHotelStore{
 		client: client,
-		coll:   client.Database(DBNAME).Collection("hotels"),
+		coll:   client.Database(dbname).Collection("hotels"),
 	}
 }
 
