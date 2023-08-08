@@ -26,7 +26,7 @@ func (tdb *Testdb) teardown(t *testing.T) {
 }
 
 func setup(t *testing.T) *Testdb {
-	if err := godotenv.Load("../.env"); err != nil {
+	if err := godotenv.Load("../.env.dev"); err != nil {
 		t.Error(err)
 	}
 

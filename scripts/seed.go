@@ -64,7 +64,7 @@ func main() {
 
 func init() {
 
-	if err := godotenv.Load(); err != nil {
+	if err := godotenv.Load(".env.dev"); err != nil {
 		log.Fatal(err)
 	}
 	var (

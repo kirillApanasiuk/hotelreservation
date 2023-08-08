@@ -3,11 +3,10 @@ package main
 import (
 	"context"
 	"github.com/gofiber/fiber/v2"
-	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"hotelreservation/api"
-	"hotelreservation/db"
+	api "hotelreservation/api"
+	db "hotelreservation/db"
 	"log"
 	"net/http"
 	"os"
@@ -62,7 +61,7 @@ func main() {
 	/// user handlers
 	apiv1.Put("/user/:id", userHandler.HandlePutUser)
 	apiv1.Get("/user", userHandler.HandleGetUsers)
-	apiv1.Post("/user", userHandler.HandlePostUser)
+	auth.Post("/user", userHandler.HandlePostUser)
 	apiv1.Delete("/user/:id", userHandler.HandleDeleteUser)
 	apiv1.Get("/user/:id", userHandler.HandleGetUser)
 
@@ -85,8 +84,13 @@ func main() {
 
 }
 
-func init() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal(err)
-	}
-}
+//func init() {
+//	log.Printf("Trying to fetch env")
+//	envFlag := flag.String("env", ".env.dev", "current environment")
+//	flag.Parse()
+//	log.Print(*envFlag)
+//	_ = envFlag
+//	if err := godotenv.Load(*envFlag); err != nil {
+//		log.Fatal(err)
+//	}
+//}
