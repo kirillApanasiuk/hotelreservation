@@ -17,6 +17,14 @@ services:
       - .env.compose
     command: "/api"
 
+  mongo_seeding:
+    build:
+      context: ./scripts
+      dockerfile: Dockerfile
+    depends_on:
+      - mongo
+    command: "go run seed.go"
+
   mongo:
     image: mongo:latest
     container_name: mongo

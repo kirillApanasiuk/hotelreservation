@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"hotelreservation/api"
@@ -25,10 +24,6 @@ var userStore db.UserStore
 var mongoDbName string
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal(err)
-	}
-
 	if err := client.Database(mongoDbName).Drop(ctx); err != nil {
 		log.Fatal(err)
 	}
@@ -63,10 +58,6 @@ func main() {
 }
 
 func init() {
-
-	if err := godotenv.Load(".env.dev"); err != nil {
-		log.Fatal(err)
-	}
 	var (
 		err        error
 		mongoDbUri = os.Getenv("MONGO_DB_URL")
